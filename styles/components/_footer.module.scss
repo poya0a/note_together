@@ -1,0 +1,42 @@
+@import '@/styles/globals.scss';
+
+.footer {
+    position: relative;
+    width: 100%;
+    height: 50px;
+    background-color: $background-color;
+    padding: 10px clamp(20px, calc(5vw + 10px), 50px);
+    border-top: 2px solid #00178e33;
+}
+
+.copyright {
+    display: inline-block;
+    width: 100%;
+    height: 30px;
+    font-size: 12px;
+    line-height: 30px;
+    color: $blue-color;
+    text-align: center;
+    font-weight: 900;
+    background-color: $background-color;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+    background-color: $background-color;
+    padding: 20px;
+    border-radius: var(--radius);
+    p {
+        width: 100%;
+        text-align: center;
+        font-size: 12px;
+        margin-bottom: 15px;
+    }
+    img {
+        border-radius: var(--radius);
+    }
+}

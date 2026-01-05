@@ -1,0 +1,26 @@
+@import '@/styles/globals.scss';
+
+.notFound {
+    height: 100vh;
+    position: relative;
+    padding: 50px clamp(20px, calc(5vw + 10px), 50px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    h1 {
+        text-align: center;
+        font-size: 24px;
+        font-weight: normal;
+    }
+    .goToHome {
+        .homeButton {
+            display: block;
+            margin-top: 20px;
+            padding: 11.5px 30px;
+            background-color: $main-color;
+            border-radius: var(--radius);
+            color: $background-color !important;
+        }
+    }
+}
