@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "김도하 포트폴리오",
     description: "프론트엔드 개발자 포트폴리오",
-    url: "https://ailog-seven.vercel.app",
+    url: "https://note-together-kappa.vercel.app",
     locale: "ko_KR",
     type: "website",
     siteName: "김도하 포트폴리오",

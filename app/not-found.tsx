@@ -9,7 +9,7 @@ export default function NotFound() {
             <div className={styles.goToHome}>
                 <Link
                 className={styles.homeButton}
-                href="https://ailog-seven.vercel.app"
+                href="https://note-together-kappa.vercel.app"
                 >
                 홈으로
                 </Link>

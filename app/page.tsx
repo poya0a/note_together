@@ -6,5 +6,5 @@ function generatePageId() {
 
 export default function NoteTogetherEntry() {
     const pageId = generatePageId();
-    redirect(`/${pageId}`);
+    redirect(`page/${pageId}`);
 }

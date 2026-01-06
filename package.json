@@ -9,6 +9,10 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@hocuspocus/extension-database": "^3.4.3",
+    "@hocuspocus/provider": "^3.4.3",
+    "@hocuspocus/server": "^3.4.3",
+    "@supabase/supabase-js": "^2.89.0",
     "@tiptap/extension-code-block-lowlight": "^2.27.1",
     "@tiptap/extension-collaboration": "^2.27.1",
     "@tiptap/extension-collaboration-cursor": "^2.26.2",
