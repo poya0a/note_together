@@ -1,0 +1,379 @@
+@import '@/styles/globals.scss';
+.toolbar {
+    position: fixed;
+    top: 110px;
+    z-index: 2;
+    max-width: 1000px;
+    justify-self: center;
+    background-color: $background-color;
+    border-bottom: 1px solid $chat-background;
+    
+    .toolbarWrapper {
+        display: inline-block;
+        position: relative;
+        padding-right: 20px;
+        margin: 5px;
+        &::before {
+        content: '';
+        width: 1px;
+        height: 15px;
+        background-color: $text-sub2;
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        }
+        &:last-child {
+        padding: 0;
+        &::before {
+            display: none;
+        }
+        }
+        button {
+        margin: 0;
+        padding: 0;
+        border: 0;
+        position: relative;
+        background: transparent;
+        cursor: pointer;
+        font: inherit;
+        background: none;
+        outline-style: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        transition: all .2s ease;
+        &.active {
+            background-color: $main-color;
+            color: $background-color;
+            img {
+            filter: brightness(1000%);
+            }
+        }
+        img {
+            width: 15px;
+            height: 15px;
+        }
+        &:hover {
+            background-color: rgba(171,189,255, .5);
+        }
+        &:disabled {
+            opacity: 0.5;
+        }
+        .colorbar {
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 15px;
+            height: 3px;
+            border-radius: 5px;
+        }
+        }
+
+        .fontSizeWrapper {
+        width: 60px;
+        height: 28px;
+        display: inline;
+        position: relative;
+        input {
+            padding: 5px 10px !important;
+            border: none !important;
+            width: 50px !important;
+            height: 28px !important;
+            margin-left: 10px !important;
+            font-size: 16px;
+        }
+        .fontSizeButton {
+            position: absolute;
+            right: 0;
+            padding: 0;
+            img {
+            width: 10px;
+            height: 10px;
+            }
+            &:first-child {
+            top: 0px;
+            }
+            &:last-child {
+            bottom: -8px;
+            }
+        }
+        }
+    }
+}
+
+.title {
+    padding: 0 15px;
+    line-height: 1.1;
+    text-wrap: pretty;
+    color: $text;
+    font-size: 1.4rem;
+    font-weight: bold;
+    width: 100%;
+    &::placeholder {
+        color: $text-sub2;
+    }
+}
+
+.colorPicker {
+    position: absolute;
+    z-index: 2;
+    top: 36px;
+    right: 0;
+}
+
+.linkPreview {
+    border: 1px solid $border-color;
+    border-radius: 8px;
+    margin: 10px 0;
+    overflow: hidden;
+    .linkPreviewFrame {
+        width: 100%;
+        height: 300px;
+        border: none;
+    }
+}
+
+.create {
+    position: relative;
+    position: absolute;
+    top: 0;
+    padding: 16px 16px 0 16px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    .pathname {
+        position: fixed;
+        top: 40px;
+        .path {
+            margin-top: 15px;
+            margin-right: 10px;
+            font-size: 16px;
+            &::after {
+                content: '/';
+                font-size: 16px;
+                margin-left: 10px;
+            }
+            &:last-child {
+                margin-right: 0;
+                &::after {
+                display: none;
+                }
+            }
+        }
+    }
+}
+
+.createButton {
+    position: relative;
+    position: fixed;
+    bottom: 0;
+    border-top: 1px solid $border-color;
+    height: 60px;
+    padding: 10px 0;
+    box-sizing: border-box;
+    background-color: $background-color;
+    .createButtonWrapper {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: inline-block;
+        display: flex;
+        button {
+        width: 80px;
+        height: 40px;
+        padding: 0 16px;
+        &:last-child {
+            margin-left: 10px;
+        }
+        }
+    }
+}
+
+.create p {
+    color: $text;
+}
+
+.create img {
+    display: block;
+}
+
+.create ul,
+.create ol {
+    padding: 0 1rem;
+    margin: 1.25rem 1rem 1.25rem 0.4rem;
+    color: $text;
+}
+
+.create ul li p,
+.create ol li p {
+    margin-top: 0.25em;
+    margin-bottom: 0.25em;
+    color: $text;
+}
+
+.create ul[data-type="taskList"] {
+    list-style: none;
+    margin-left: 0;
+    padding: 0;
+}
+
+.create ul[data-type="taskList"] li {
+    align-items: flex-start;
+    display: flex;
+}
+
+.create ul[data-type="taskList"] li > label {
+    flex: 0 0 auto;
+    margin-right: 0.5rem;
+    user-select: none;
+}
+
+.create ul[data-type="taskList"] li > div {
+    flex: 1 1 auto;
+}
+
+.create ul[data-type="taskList"] input[type="checkbox"] {
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    background-color: $border-color;
+    border-radius: 5px;
+    margin-right: 5px;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
+.create ul[data-type="taskList"] input[type="checkbox"]:checked {
+    background-size: 60% 60%;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-color: $blue-color;
+    border-radius: 5px;
+    background-image: url('/images/check.svg');
+}
+
+.create ul[data-type="taskList"] ul[data-type="taskList"] {
+    margin: 0;
+}
+
+.create code {
+    background-color: $blue-color;
+    border-radius: 0.4rem;
+    color: $text;
+    font-size: 0.85rem;
+    padding: 0.25em 0.3em;
+}
+
+.create pre {
+    background: $text;
+    border-radius: 0.5rem;
+    color: $background-color;
+    font-family: 'JetBrainsMono', monospace;
+    margin: 1.5rem 0;
+    padding: 0.75rem 1rem;
+}
+
+.create pre code {
+    background: none;
+    color: inherit;
+    font-size: 0.8rem;
+    padding: 0;
+}
+
+.create blockquote {
+    border-left: 3px solid $text-sub;
+    margin: 1.5rem 0;
+    padding-left: 1rem;
+}
+
+.create hr {
+    border: none;
+    border-top: 1px solid $text-sub2;
+    margin: 2rem 0;
+}
+
+.create .tableWrapper {
+    margin: 1.5rem 0;
+    overflow-x: auto;
+}
+
+.create .tableWrapper table {
+    border-collapse: collapse;
+    margin: 0;
+    overflow: hidden;
+    table-layout: fixed;
+    width: 100%;
+}
+
+.create .tableWrapper table td,
+.create .tableWrapper table th {
+    border: 1px solid $border-color;
+    box-sizing: border-box;
+    min-width: 1em;
+    padding: 6px 8px;
+    position: relative;
+    vertical-align: top;
+}
+
+.create .tableWrapper table td > *,
+.create .tableWrapper table th > * {
+    margin-bottom: 0;
+}
+
+.create .tableWrapper table th {
+    background-color: #F5F5F5;
+    font-weight: bold;
+    text-align: left;
+}
+
+.create .tableWrapper table .selectedCell:after {
+    background: rgba(171, 189, 255, .3);
+    content: "";
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+}
+
+.create .tableWrapper table .column-resize-handle {
+    background-color: $text-sub2;
+    bottom: -2px;
+    pointer-events: none;
+    position: absolute;
+    right: -2px;
+    top: 0;
+    width: 4px;
+}
+
+.create .tableWrapper.resize-cursor {
+    cursor: ew-resize;
+    cursor: col-resize;
+}
+
+.create mark {
+    box-decoration-break: clone;
+    padding: 0.1rem 0.3rem;
+    border-radius: 0;
+    box-decoration-break: unset;
+    padding: 0;
+    color: inherit;
+}
+
+.create a {
+    color: $text;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.noContent {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    p {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+}

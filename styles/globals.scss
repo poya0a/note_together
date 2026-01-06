@@ -171,10 +171,11 @@ $text-sub2: #999999;
 
 // editor
 .tiptap {
+    width: 100%;
     outline: none;
-    padding: 0 15px;
-    height: calc(100vh - 280px);
-
+    padding: 15px clamp(0px, (100vw - 1000px) / 10, 15px);
+    height: calc(100vh - 292px);
+    overflow: auto;
     P {
         color: $text;
     }
