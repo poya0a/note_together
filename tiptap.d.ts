@@ -1,6 +1,7 @@
 import '@tiptap/core'
+
 declare module '@tiptap/core' {
-        interface Commands<ReturnType> {
+    interface Commands<ReturnType> {
         color: {
             setColor: (color: string) => ReturnType
         }
@@ -22,6 +23,9 @@ declare module '@tiptap/core' {
             toggleHeaderColumn: () => ReturnType
             toggleHeaderCell: () => ReturnType
             fixTables: () => ReturnType
+        }
+        image: {
+            setImage: (options: { src: string; alt?: string; title?: string; width?: number; height?: number }) => ReturnType
         }
     }
 }
