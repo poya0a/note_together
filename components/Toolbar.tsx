@@ -95,7 +95,6 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
   const handleColorChange = (color: ColorResult) => {
     if (!editor) return;
     if (type === "text") {
-      editor.chain().focus().run();
       editor.commands.setColor(color.hex);
       setCurrentTextColor(color.hex);
     } else if (type === "highlight") {
