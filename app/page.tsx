@@ -1,10 +1,10 @@
 import { redirect } from "next/navigation";
 
-function generatePageId() {
+function generateDocumentId() {
     return crypto.randomUUID();
 }
 
 export default function NoteTogetherEntry() {
-    const pageId = generatePageId();
-    redirect(`page/${pageId}`);
+    const  documentId = generateDocumentId();
+    redirect(` document/${documentId}`);
 }
