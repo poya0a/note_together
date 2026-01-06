@@ -1,4 +1,13 @@
+// tiptap.d.ts
 import '@tiptap/core'
+
+interface TextStyleAttributes {
+    color?: string
+    backgroundColor?: string
+    fontSize?: string
+    fontFamily?: string
+    [key: string]: string | undefined
+}
 
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
@@ -26,6 +35,29 @@ declare module '@tiptap/core' {
         }
         image: {
             setImage: (options: { src: string; alt?: string; title?: string; width?: number; height?: number }) => ReturnType
+        }
+        textAlign: {
+            setTextAlign: (alignment: 'left' | 'center' | 'right' | 'justify') => ReturnType
+        }
+        list: {
+            toggleBulletList: () => ReturnType
+            toggleOrderedList: () => ReturnType
+            toggleTaskList: () => ReturnType
+        }
+        bold: { toggleBold: () => ReturnType }
+        italic: { toggleItalic: () => ReturnType }
+        strike: { toggleStrike: () => ReturnType }
+        underline: { toggleUnderline: () => ReturnType }
+        codeBlock: { toggleCodeBlock: () => ReturnType }
+        blockquote: { toggleBlockquote: () => ReturnType }
+        horizontalRule: { setHorizontalRule: () => ReturnType }
+        hardBreak: { setHardBreak: () => ReturnType }
+        history: {
+            undo: () => ReturnType
+            redo: () => ReturnType
+        }
+        textStyle: {
+            setMark: (name: string, attributes: TextStyleAttributes) => ReturnType<typeof editor.chain>
         }
     }
 }
