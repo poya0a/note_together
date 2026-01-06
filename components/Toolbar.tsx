@@ -98,7 +98,7 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
       editor.chain().focus().setColor(color.hex).run();
       setCurrentTextColor(color.hex);
     } else if (type === "highlight") {
-      editor.commands.setHighlight({ color: color.hex });
+      editor.chain().focus().setHighlight({ color: color.hex }).run();
       setCurrentHighlightColor(color.hex);
     }
   };
