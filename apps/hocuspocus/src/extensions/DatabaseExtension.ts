@@ -3,7 +3,7 @@ import type { Extension, onStatelessPayload } from "@hocuspocus/server";
 import { supabaseServer } from "../lib/supabase/server.js";
 
 type ClientMessage =
-  | { type: "SAVE" }
+  | { type: "SAVE"; title?: string }
   | { type: "DELETE" };
 
 function parseMessage(payload: string | Uint8Array): ClientMessage | null {
@@ -23,32 +23,34 @@ function parseMessage(payload: string | Uint8Array): ClientMessage | null {
 
 export const DatabaseExtension: Extension = {
   async onLoadDocument({ document, documentName }) {
-    const { data, error } = await supabaseServer
+    const { data } = await supabaseServer
       .from("note_together")
       .select("yjs_state")
       .eq("id", documentName)
       .single();
 
-    if (error || !data?.yjs_state) {
-      return document;
+    if (data?.yjs_state) {
+      Y.applyUpdate(document, new Uint8Array(data.yjs_state));
+    } else {
+      await supabaseServer.from("note_together").insert({
+        id: documentName,
+        yjs_state: null,
+        title: "",
+      });
     }
-
-    const update = new Uint8Array(data.yjs_state);
-    Y.applyUpdate(document, update);
-
-    return document;
   },
 
-  async onStateless(payload: onStatelessPayload) {
-    const { document, documentName } = payload;
-    const message = parseMessage(payload.payload);
+  async onStateless({ document, documentName, payload }: onStatelessPayload) {
+    const message = parseMessage(payload);
     if (!message) return;
 
     if (message.type === "SAVE") {
       const update = Y.encodeStateAsUpdate(document);
+      const yTitle = document.getText("title").toString();
 
       await supabaseServer.from("note_together").upsert({
         id: documentName,
+        title: yTitle,
         yjs_state: Buffer.from(update),
         updated_at: new Date().toISOString(),
       });

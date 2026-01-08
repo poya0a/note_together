@@ -59,10 +59,17 @@ export default function NoteTogetherPage() {
   const router = useRouter();
 
   const userRef = useRef<{ name: string; color: string } | null>(null);
-  const yjsRef = useRef<{ doc: Y.Doc; provider: HocuspocusProvider } | null>(null);
+  const yjsRef = useRef<{
+    doc: Y.Doc;
+    provider: HocuspocusProvider;
+    title: Y.Text;
+    content: Y.XmlFragment;
+  } | null>(null);
   const editorRef = useRef<Editor | null>(null);
   const [editor, setEditor] = useState<Editor | null>(null);
   const { useToolBarHeightState } = useToolBarHeightStore();
+
+  const [title, setTitle] = useState<"" | string>("");
 
   useEffect(() => {
 
@@ -84,11 +91,29 @@ export default function NoteTogetherPage() {
 
     if (editorRef.current) return;
 
+    const yTitle = yjsRef.current.title;
+
+    setTitle(yTitle.toString());
+
+    const observer = () => {
+      setTitle(yTitle.toString());
+    };
+
+  yTitle.observe(observer);
     const newEditor = new Editor({
       extensions: [
         StarterKit.configure({ history: false }),
-        Collaboration.configure({ document: yjsRef.current.doc }),
-        CollaborationCursor.configure({ provider: yjsRef.current.provider, user: userRef.current }),
+        Collaboration.configure({
+          document: yjsRef.current.doc,
+          fragment: yjsRef.current.content,
+        }),
+        CollaborationCursor.configure({
+          provider: yjsRef.current.provider,
+          user: {
+            name: userRef.current.name,
+            color: userRef.current.color,
+          },
+        }),
         TextStyle,
         Color,
         ListItem,
@@ -142,6 +167,7 @@ export default function NoteTogetherPage() {
 
     return () => {
       newEditor.destroy();
+      yTitle.unobserve(observer);
       yjsRef.current?.provider.destroy();
       yjsRef.current?.doc.destroy();
     };
@@ -160,7 +186,10 @@ export default function NoteTogetherPage() {
 
     const interval = setInterval(async () => {
       try {
-        await sendYjsCommand(yjsRef.current!.provider, "SAVE");
+        await sendYjsCommand(yjsRef.current!.provider, {
+          type: "SAVE",
+          title: title,
+        });
       } catch {
         console.log("자동 저장에 실패했습니다. 네트워크 상태를 확인해주세요.");
       };
@@ -191,7 +220,10 @@ export default function NoteTogetherPage() {
   const handleSave = async () => {
     if (!yjsRef.current) return;
     try {
-      await sendYjsCommand(yjsRef.current.provider, "SAVE");
+      await sendYjsCommand(yjsRef.current!.provider, {
+        type: "SAVE",
+        title: title,
+      });
       alert("저장 완료");
     } catch {
       alert("저장 실패");
@@ -203,7 +235,7 @@ export default function NoteTogetherPage() {
     if (!confirm("문서를 삭제하면 모든 사용자가 퇴장됩니다. 계속할까요?")) return;
 
     try {
-      await sendYjsCommand(yjsRef.current.provider, "DELETE");
+      await sendYjsCommand(yjsRef.current.provider, { type: "DELETE" });
 
       yjsRef.current.provider.sendStateless(JSON.stringify({ type: "DELETED" }));
 
@@ -253,8 +285,18 @@ export default function NoteTogetherPage() {
             placeholder="제목 없음"
             maxLength={50}
             onKeyUp={handleEnter}
-            // onChange={(e) => setTitle(e.target.value)}
-            // value={useEditorState.title}
+            value={title}
+            onChange={(e) => {
+              const value = e.target.value;
+              setTitle(value);
+
+              const yTitle = yjsRef.current!.title;
+
+              yTitle.doc?.transact(() => {
+                yTitle.delete(0, yTitle.length);
+                yTitle.insert(0, value);
+              });
+            }}
           />
           <button
             className={styles.linkCopyButton}
