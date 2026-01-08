@@ -22,6 +22,23 @@ function parseMessage(payload: string | Uint8Array): ClientMessage | null {
 }
 
 export const DatabaseExtension: Extension = {
+  async onLoadDocument({ document, documentName }) {
+    const { data, error } = await supabaseServer
+      .from("note_together")
+      .select("yjs_state")
+      .eq("id", documentName)
+      .single();
+
+    if (error || !data?.yjs_state) {
+      return document;
+    }
+
+    const update = new Uint8Array(data.yjs_state);
+    Y.applyUpdate(document, update);
+
+    return document;
+  },
+
   async onStateless(payload: onStatelessPayload) {
     const { document, documentName } = payload;
     const message = parseMessage(payload.payload);
@@ -29,6 +46,7 @@ export const DatabaseExtension: Extension = {
 
     if (message.type === "SAVE") {
       const update = Y.encodeStateAsUpdate(document);
+
       await supabaseServer.from("note_together").upsert({
         id: documentName,
         yjs_state: Buffer.from(update),
@@ -37,8 +55,15 @@ export const DatabaseExtension: Extension = {
     }
 
     if (message.type === "DELETE") {
-      await supabaseServer.from("note_together").delete().eq("id", documentName);
-      document.broadcastStateless(JSON.stringify({ type: "DELETED" }));
+      await supabaseServer
+        .from("note_together")
+        .delete()
+        .eq("id", documentName);
+
+      document.broadcastStateless(
+        JSON.stringify({ type: "DELETED" })
+      );
+
       document.destroy();
     }
   },

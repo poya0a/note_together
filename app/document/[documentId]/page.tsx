@@ -38,8 +38,8 @@ import styles from "@/styles/pages/_noteTogether.module.scss";
 const lowlight = createLowlight(common);
 
 function randomColor() {
-  const colors = ["#f87171", "#60a5fa", "#34d399", "#facc15", "#a78bfa", "#fb7185"]
-  return colors[Math.floor(Math.random() * colors.length)]
+  const colors = ["#f87171", "#60a5fa", "#34d399", "#facc15", "#a78bfa", "#fb7185"];
+  return colors[Math.floor(Math.random() * colors.length)];
 };
 
 const CustomTextStyle = TextStyle.extend({
@@ -57,8 +57,7 @@ const CustomTextStyle = TextStyle.extend({
 export default function NoteTogetherPage() {
   const { documentId } = useParams();
   const router = useRouter();
-  console.log('sdasda')
-console.log(documentId)
+
   const userRef = useRef<{ name: string; color: string } | null>(null);
   const yjsRef = useRef<{ doc: Y.Doc; provider: HocuspocusProvider } | null>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -66,24 +65,24 @@ console.log(documentId)
   const { useToolBarHeightState } = useToolBarHeightStore();
 
   useEffect(() => {
-  
-    if (!documentId && typeof documentId !== "string") {
-      router.push("/not-found");
-      return;
-    };
 
-    if (!userRef.current) {
-      userRef.current = { name: `User-${crypto.randomUUID().slice(0, 4)}`, color: randomColor() };
-    };
-
-    if (!yjsRef.current && typeof documentId === "string") {
-      yjsRef.current = createYjs(documentId);
-    };
-
-    if(userRef.current === null || yjsRef.current === null) {
-      router.push("/not-found");
+    if (typeof documentId !== "string") {
+      router.replace("/not-found");
       return;
     }
+
+    if (!userRef.current) {
+      userRef.current = {
+        name: `User-${crypto.randomUUID().slice(0, 4)}`,
+        color: randomColor(),
+      };
+    }
+
+    if (!yjsRef.current) {
+      yjsRef.current = createYjs(documentId);
+    }
+
+    if (editorRef.current) return;
 
     const newEditor = new Editor({
       extensions: [
@@ -136,31 +135,24 @@ console.log(documentId)
           nested: true,
         }),
       ],
-    })
+    });
 
-    editorRef.current = newEditor
-    setEditor(newEditor)
+    editorRef.current = newEditor;
+    setEditor(newEditor);
 
     return () => {
-      newEditor.destroy()
-      yjsRef.current?.provider.disconnect()
-      yjsRef.current?.doc.destroy()
+      newEditor.destroy();
+      yjsRef.current?.provider.destroy();
+      yjsRef.current?.doc.destroy();
     };
   }, [documentId, router]);
-
-
-  useEffect(() => {
-    if (editor) {
-      editorRef.current = editor
-    }
-  }, [editor])
 
   const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!editor) return;
     if (e.key === "Enter") {
       e.preventDefault();
       editor.commands.focus();
-    }
+    };
   };
 
   useEffect(() => {
@@ -171,7 +163,7 @@ console.log(documentId)
         await sendYjsCommand(yjsRef.current!.provider, "SAVE");
       } catch {
         console.log("자동 저장에 실패했습니다. 네트워크 상태를 확인해주세요.");
-      }
+      };
     }, 5 * 60 * 1000);
 
     return () => clearInterval(interval);
