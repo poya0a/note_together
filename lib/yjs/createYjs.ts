@@ -1,12 +1,12 @@
 import * as Y from "yjs";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 
-export function createYjs(roomId: string) {
+export function createYjs(documentId: string) {
     const doc = new Y.Doc();
 
     const provider = new HocuspocusProvider({
         url: "wss://note-together-kappa.onrender.com",
-        name: roomId,
+        name: documentId,
         document: doc,
     });
 
