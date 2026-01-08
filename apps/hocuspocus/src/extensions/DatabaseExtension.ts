@@ -1,6 +1,6 @@
 import * as Y from "yjs";
 import type { Extension, onStatelessPayload } from "@hocuspocus/server";
-import { supabaseServer } from "@/lib/supabase/server";
+import { supabaseServer } from "../lib/supabase/server.js";
 
 type ClientMessage =
   | { type: "SAVE" }

@@ -1,5 +1,6 @@
+import "dotenv/config";
 import { Server } from "@hocuspocus/server";
-import { DatabaseExtension } from "@/server/extensions/DatabaseExtension";
+import { DatabaseExtension } from "./extensions/DatabaseExtension.js";
 
 const PORT = Number(process.env.PORT) || 1234;
 
@@ -9,5 +10,3 @@ const server = new Server({
 });
 
 server.listen();
-
-console.log(`✅ Hocuspocus server listening on port ${PORT}`);
