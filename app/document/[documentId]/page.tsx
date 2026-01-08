@@ -57,7 +57,8 @@ const CustomTextStyle = TextStyle.extend({
 export default function NoteTogetherPage() {
   const { documentId } = useParams();
   const router = useRouter();
-
+  console.log('sdasda')
+console.log(documentId)
   const userRef = useRef<{ name: string; color: string } | null>(null);
   const yjsRef = useRef<{ doc: Y.Doc; provider: HocuspocusProvider } | null>(null);
   const editorRef = useRef<Editor | null>(null);

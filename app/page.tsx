@@ -6,5 +6,5 @@ function generateDocumentId() {
 
 export default function NoteTogetherEntry() {
     const  documentId = generateDocumentId();
-    redirect(` document/${documentId}`);
+    redirect(`document/${documentId}`);
 }
