@@ -113,10 +113,6 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
     }
   };
 
-  // const setMention = () => {
-
-  // };
-
   useEffect(() => {
     if (!editor) return;
     if (!useURLPopupState.isActOpen && useURLPopupState.value.URL !== null) {
@@ -421,10 +417,6 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
           <button type="button" onClick={createTable} title="표 생성">
             <Image src="/images/icon/grid.svg" alt="create grid" width={20} height={20} />
           </button>
-          {/* 멘션 기능 보류
-          <button type="button" onClick={setMention} title="언급">
-            <img src="/images/icon/at.svg" alt="mention" />
-          </button> */}
           <button type="button" onClick={() => toggleURLPopup(true)} title="연결 삽입">
             <Image src="/images/icon/link.svg" alt="link" width={20} height={20} />
           </button>

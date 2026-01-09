@@ -68,6 +68,8 @@
     left: 0;
     width: 100%;
     height: auto;
+    margin-right: calc( 100vh - 50px );
+    overflow-y: auto;
     padding: 20px clamp(20px, calc(5vw + 10px), 50px);
     background-color: $background-color;
     transform: translateY(calc(-100% - 50px));

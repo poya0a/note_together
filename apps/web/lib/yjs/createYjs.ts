@@ -20,7 +20,7 @@ export function createYjs(documentId: string) {
         provider,
         title,
         content, 
-};
+    };
 }
 
 export async function sendYjsCommand(
