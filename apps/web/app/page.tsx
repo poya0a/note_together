@@ -2,40 +2,51 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getOrCreateClientData } from "@/lib/clientStorage/clientData";
-import { createNewDocument, fetchTitleList, fetchDocument } from "@/lib/document";
+import { createNewDocument, fetchDocument } from "@/lib/document";
 import { useDocumentStore } from "@/store/useDocumentStore";
 
 export default function NoteTogetherEntry() {
     const router = useRouter();
-    const { setList, setDocument } = useDocumentStore(state => state);
+    const { setList, document, setDocument } = useDocumentStore(state => state);
 
     useEffect(() => {
         const init = async () => {
             const clientData = getOrCreateClientData();
-            let targetDocId = clientData.documents[clientData.documents.length - 1];
 
-            let titles = clientData.documents && clientData.documents.length > 0 ? await fetchTitleList(clientData.documents) : null;
-            let doc = targetDocId ? await fetchDocument(targetDocId) : null;
-            
-            if (!doc || !titles) {
-                targetDocId = crypto.randomUUID();
+            // 기존 문서 데이터가 있는 경우
+            if (document && clientData.documents && clientData.documents.length > 0) {
+                const lastDocId = clientData.documents[clientData.documents.length - 1];
+                // 현재 문서 데이터와 아이디가 일치하는 경우
+                if (lastDocId !== document.id) {
+                    const doc = await fetchDocument(lastDocId);
+                    setDocument(doc);
+                }
+                router.replace(`/document/${lastDocId}`);  
+                // 문서 데이터가 없는 경우
+            } else {
+                const newId = crypto.randomUUID();
 
-                await createNewDocument(targetDocId);
-                doc = await fetchDocument(targetDocId);
-                titles = await fetchTitleList([targetDocId])
+                // 문서 생성
+                const newDoc = await createNewDocument(newId);
+
+                if (newDoc) {
+                    // 전역 변수에 저장
+                    setDocument(newDoc);
+                    setList([{
+                        id: newDoc.id,
+                        title: ""
+                    }]);
+                    
+                    // 로컬 스토리지 데이터 업데이트
+                    clientData.documents = [newDoc.id];
+                    localStorage.setItem("noteTogetherClientData", JSON.stringify(clientData));
+
+                    router.replace(`/document/${newDoc.id}`);
+                }
             }
-
-            setList(titles);
-            setDocument(doc);
-
-            clientData.documents = [targetDocId];
-            localStorage.setItem("noteTogetherClientData", JSON.stringify(clientData));
-
-            router.replace(`/document/${targetDocId}`);     
         };
-
         init();
-    }, [router, setList, setDocument]);
+    }, [router]);
 
     return null;
 }

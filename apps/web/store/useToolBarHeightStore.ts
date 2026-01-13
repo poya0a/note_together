@@ -1,13 +1,13 @@
 import { create } from "zustand";
 
-interface ToolBarHeightState {
-    useToolBarHeightState: number;
-    handleToolBarHeight: (height: number) => void;
+interface ToolbarHeightState {
+    useToolbarHeightState: number;
+    handleToolbarHeight: (height: number) => void;
 }
 
-export const useToolBarHeightStore = create<ToolBarHeightState>((set) => ({
-    useToolBarHeightState: 73,
+export const useToolbarHeightStore = create<ToolbarHeightState>((set) => ({
+    useToolbarHeightState: 73,
 
-    handleToolBarHeight: (height: number) =>
-        set({ useToolBarHeightState: height }),
+    handleToolbarHeight: (height: number) =>
+        set({ useToolbarHeightState: height }),
 }));

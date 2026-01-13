@@ -29,15 +29,16 @@ export const DatabaseExtension: Extension = {
       .eq("id", documentName)
       .single();
 
-    if (data?.yjs_state) {
-      Y.applyUpdate(document, new Uint8Array(data.yjs_state));
-    } else {
-      await supabaseServer.from("note_together").insert({
-        id: documentName,
-        yjs_state: null,
-        title: "",
-      });
+    if (!data) {
+      return document;
     }
+
+    if (data.yjs_state) {
+      const update = new Uint8Array(data.yjs_state);
+      Y.applyUpdate(document, update);
+    }
+
+    return document;
   },
 
   async onStateless({ document, documentName, payload }: onStatelessPayload) {
@@ -57,16 +58,17 @@ export const DatabaseExtension: Extension = {
     }
 
     if (message.type === "DELETE") {
-      await supabaseServer
+      const { error } = await supabaseServer
         .from("note_together")
         .delete()
         .eq("id", documentName);
 
-      document.broadcastStateless(
-        JSON.stringify({ type: "DELETED" })
-      );
-
-      document.destroy();
+      if (!error) {
+        document.broadcastStateless(
+          JSON.stringify({ type: "DELETED" })
+        );
+        document.destroy();
+      }
     }
   },
 };

@@ -6,7 +6,7 @@
         width: 100%;
         max-width: 1100px;
         min-height: calc(100vh - 50px);
-        padding: 100px clamp(20px, calc(5vw + 10px), 50px) 0;
+        padding: calc(var(--toolbar-height, 73px) + 110px) clamp(20px, calc(5vw + 10px), 50px) 55px;
 }
 
 .titleContainer {
@@ -34,14 +34,15 @@
 }
 
 .buttonContainer {
+        position: absolute;
+        bottom: 0;
         display: flex;
         justify-content: space-between;
         justify-self: center;
         width: 100%;
         max-width: 1000px;
         padding: 10px clamp(0px, calc(5vw + 10px), 15px);
-        background-color: $background-color;
-        .deleteButton, .saveButton {
+        .deleteButton, .saveButton, .approveButton, .cancelButton {
                 width: fit-content;
                 font-size: 12px;
                 font-weight: 800;
@@ -49,8 +50,49 @@
                 padding: 10px 20px;
                 border-radius: var(--radius);
                 background-color: $red-color;
-                &.saveButton {
+                &.saveButton, &.approveButton {
                         background-color: $blue-color;
                 }
+        }
+}
+
+.alertOverlay {
+        z-index: 5;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0,0,0,0.3);
+}
+
+.alert {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: var(--shadow-lg);
+        background-color: $sub-color;
+        padding: 20px;
+        border-radius: var(--radius);
+        .alertHeader {
+                margin-bottom: 30px;
+                padding-bottom: 20px;
+                text-align: center;
+                border-bottom: 2px solid $background-color;
+                font-size: 15px;
+                font-weight: 700;
+                letter-spacing: 10px;
+        }
+        p {
+                width: 100%;
+                text-align: center;
+                font-size: 12px;
+                margin: 0;
+        }
+        .buttonContainer {
+                position: relative;
+                padding: 0;
+                margin-top: 30px;
         }
 }

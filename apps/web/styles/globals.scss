@@ -174,7 +174,7 @@ $text-sub2: #999999;
     width: 100%;
     outline: none;
     padding: 15px clamp(0px, (100vw - 1000px) / 10, 15px);
-    height: calc(100vh - 292px);
+    height: calc(100vh - 220px - var(--toolbar-height, 73px));
     overflow: auto;
     P {
         color: $text;

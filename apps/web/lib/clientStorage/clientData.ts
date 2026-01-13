@@ -12,6 +12,8 @@ export type ClientData = {
 
 const LOCAL_STORAGE_KEY = "noteTogetherClientData";
 
+const MAX_DOCS = 20;
+
 function isBrowser(): boolean {
     return typeof window !== "undefined";
 }
@@ -28,7 +30,7 @@ export function getOrCreateClientData(): ClientData {
         const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
         if (stored) return JSON.parse(stored);
     } catch (err) {
-        console.error("Failed to parse client data:", err);
+        throw err;
     }
 
     const data: ClientData = {
@@ -47,8 +49,11 @@ export function addDocument(documentId: string) {
     if (!isBrowser()) return;
 
     const data = getOrCreateClientData();
-    data.documents = data.documents.filter(id => id !== documentId);
-    data.documents.push(documentId);
+
+    data.documents = [
+        documentId,
+        ...data.documents.filter(id => id !== documentId),
+    ].slice(0, MAX_DOCS);
 
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
 }
@@ -57,6 +62,7 @@ export function removeDocument(documentId: string) {
     if (!isBrowser()) return;
 
     const data = getOrCreateClientData();
+
     data.documents = data.documents.filter(id => id !== documentId);
 
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));

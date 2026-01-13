@@ -7,7 +7,6 @@ type DocumentStore = {
     
     document: DocumentData;
     setDocument: (doc: DocumentData) => void;
-    clearDocument: () => void;
 };
 
 export const useDocumentStore = create<DocumentStore>((set) => ({
@@ -21,12 +20,4 @@ export const useDocumentStore = create<DocumentStore>((set) => ({
         created_at: "",
     },
     setDocument: (doc) => set({ document: doc }),
-    clearDocument: () => set({ document: 
-        {
-            id: "",
-            title: "",
-            yjs_state: "",
-            created_at: "",
-        }
-    }),
 }));

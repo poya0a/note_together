@@ -4,7 +4,7 @@ import { Editor } from "@tiptap/react";
 import Image from "next/image";
 import { SketchPicker, ColorResult } from "react-color";
 import { useEditorStore } from "@/store/useEditorStore";
-import { useToolBarHeightStore } from "@/store/useToolBarHeightStore";
+import { useToolbarHeightStore } from "@/store/useToolbarHeightStore";
 // import { useUpdateEffect } from "@utils/useUpdateEffect";
 import { useURLPopupStore } from "@/store/popup/useURLPopupStore";
 import styles from "@/styles/components/_toolbar.module.scss";
@@ -27,7 +27,7 @@ const isTablePresent = (editor: Editor): boolean => {
 
 export default function Toolbar({ editor }: { editor: Editor | null }) {
   const toolbarRef = useRef<HTMLDivElement>(null);
-  const { handleToolBarHeight } = useToolBarHeightStore();
+  const { handleToolbarHeight } = useToolbarHeightStore();
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
   const [currentTextColor, setCurrentTextColor] = useState<string>("#1F1F1F");
   const [currentHighlightColor, setCurrentHighlightColor] = useState<string>("transparent");
@@ -41,7 +41,7 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
   useEffect(() => {
     const handleResize = (entries: ResizeObserverEntry[]) => {
       const toolbarElement = entries[0].target as HTMLDivElement;
-      handleToolBarHeight(toolbarElement.offsetHeight);
+      handleToolbarHeight(toolbarElement.offsetHeight);
     };
 
     const resizeObserver = new ResizeObserver(handleResize);
@@ -53,7 +53,7 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [handleToolBarHeight]);
+  }, [handleToolbarHeight]);
 
   // 컬러 피커
   useEffect(() => {

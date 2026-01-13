@@ -80,18 +80,45 @@
         list-style: none;
         padding: 0;
         li {
-            align-items: flex-start;
             display: flex;
+            justify-content: space-between;
+            gap: 10px;
             padding: 10px 0;
-            font-size: 18px;
-            font-weight: 900;
-            transition: all 0.3s ease;
             cursor: pointer;
-            &.active {
+            &.active .titleButton {
                 color: $main-color;
             }
-            &:hover {
+            &:hover .titleButton {
                 color: $text-sub2;
+            }
+            .titleButton {
+                font-size: 18px;
+                font-weight: 900;
+                line-height: 28px;
+                transition: all 0.3s ease;
+                background-color: transparent;
+            }
+            &.buttonContainer {
+                justify-content: end;
+                .createButton {
+                    width: fit-content;
+                    font-size: 12px;
+                    font-weight: 800;
+                    color: $background-color;
+                    padding: 10px 20px;
+                    border-radius: var(--radius);
+                    background-color: $blue-color;
+                }
+            }
+            .exitButton {
+                width: fit-content;
+                font-size: 12px;
+                font-weight: 800;
+                color: $blue-color;
+                padding: 5px 8px;
+                border-radius: var(--radius);
+                border: 1px solid $blue-color !important;
+                background-color: $background-color;
             }
         }
     }

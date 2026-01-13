@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         .insert({
             id: documentId,
             title: "",
-            yjs_state: "",
+            yjs_state: null,
         })
         .select()
         .single();
