@@ -2,27 +2,14 @@ import * as Y from "yjs";
 import type { Extension, onStatelessPayload } from "@hocuspocus/server";
 import { supabaseServer } from "../lib/supabase/server.js";
 
-type ClientMessage =
-  | { type: "SAVE"; title?: string }
-  | { type: "DELETE" };
-
-function parseMessage(payload: string | Uint8Array): ClientMessage | null {
-  try {
-    const text =
-      typeof payload === "string"
-        ? payload
-        : new TextDecoder().decode(payload);
-
-    const data = JSON.parse(text);
-    if (data?.type === "SAVE" || data?.type === "DELETE") return data;
-    return null;
-  } catch {
-    return null;
-  }
-}
-
 export const DatabaseExtension: Extension = {
   async onLoadDocument({ document, documentName }) {
+    const meta = document.getMap("meta");
+
+    if (meta.get("loaded")) {
+      return document;
+    }
+
     const { data } = await supabaseServer
       .from("note_together")
       .select("yjs_state")
@@ -34,25 +21,32 @@ export const DatabaseExtension: Extension = {
     }
 
     if (data.yjs_state) {
-      const update = new Uint8Array(data.yjs_state);
-      Y.applyUpdate(document, update);
+      const update = Buffer.from(data.yjs_state, "base64");
+      Y.applyUpdate(document, new Uint8Array(update));
     }
-
+    
+    meta.set("loaded", true);
     return document;
   },
 
   async onStateless({ document, documentName, payload }: onStatelessPayload) {
-    const message = parseMessage(payload);
+    const message =
+      typeof payload === "string"
+        ? JSON.parse(payload)
+        : JSON.parse(new TextDecoder().decode(payload));
+
     if (!message) return;
 
     if (message.type === "SAVE") {
       const update = Y.encodeStateAsUpdate(document);
-      const yTitle = document.getText("title").toString();
+      const meta = document.getMap("meta");
+      const title = meta.get("title") ?? "";
+
 
       await supabaseServer.from("note_together").upsert({
         id: documentName,
-        title: yTitle,
-        yjs_state: Buffer.from(update),
+        title,
+        yjs_state: Buffer.from(update).toString("base64"),
         updated_at: new Date().toISOString(),
       });
     }

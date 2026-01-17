@@ -6,7 +6,7 @@ const hocuspocusServerURL = process.env.NEXT_PUBLIC_HOCUS_POCUS_SERVER_URL!;
 export function createYjs(documentId: string) {
     const doc = new Y.Doc();
 
-    const title = doc.getText("title");
+    const meta = doc.getMap("meta");
     const content = doc.getXmlFragment("content");
 
     const provider = new HocuspocusProvider({
@@ -18,16 +18,14 @@ export function createYjs(documentId: string) {
     return {
         doc,
         provider,
-        title,
-        content, 
+        meta,
+        content,
     };
 }
 
 export async function sendYjsCommand(
     provider: HocuspocusProvider,
-    data:
-        | { type: "SAVE"; title?: string }
-        | { type: "DELETE" }
+    data: { type: "SAVE" | "DELETE" }
 ) {
     provider.sendStateless(JSON.stringify(data));
 }

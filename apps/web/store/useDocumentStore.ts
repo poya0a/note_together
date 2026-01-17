@@ -1,12 +1,12 @@
 import { create } from "zustand";
-import { DocumentSummary, DocumentData } from "@/lib/document";
+import { DocumentSummary } from "@/lib/document";
 
 type DocumentStore = {
     list: DocumentSummary[];
     setList: (docs: DocumentSummary[]) => void;
     
-    document: DocumentData;
-    setDocument: (doc: DocumentData) => void;
+    document: DocumentSummary;
+    setDocument: (doc: DocumentSummary) => void;
 };
 
 export const useDocumentStore = create<DocumentStore>((set) => ({
@@ -16,8 +16,6 @@ export const useDocumentStore = create<DocumentStore>((set) => ({
     document: {
         id: "",
         title: "",
-        yjs_state: "",
-        created_at: "",
     },
     setDocument: (doc) => set({ document: doc }),
 }));

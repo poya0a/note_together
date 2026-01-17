@@ -3,13 +3,6 @@ export type DocumentSummary = {
     title: string;
 };
 
-export type DocumentData = {
-    id: string;
-    title: string;
-    yjs_state: string;
-    created_at: string;
-};
-
 export async function createNewDocument (newId: string) {
     try {
         const res = await fetch("/api/document", {
@@ -18,7 +11,7 @@ export async function createNewDocument (newId: string) {
             body: JSON.stringify({ documentId: newId }),
         });
         
-        if (!res.ok) return [];
+        if (!res.ok) return null;
 
         const data = await res.json();
         return data?.document ?? null;
@@ -37,7 +30,7 @@ export async function fetchTitleList(documentIds: string[]) {
             body: JSON.stringify({ documentIds }),
         });
 
-        if (!res.ok) return [];
+        if (!res.ok) return null;
 
         const data = await res.json();
         return data.documents as { id: string; title: string }[];
@@ -49,8 +42,8 @@ export async function fetchTitleList(documentIds: string[]) {
 export async function fetchDocument(documentId: string) {
     try {
         const res = await fetch(
-        `/api/document/${documentId}`,
-        { cache: "no-store" }
+            `/api/document/${documentId}`,
+            { cache: "no-store" }
         );
 
         if (!res.ok) return null;

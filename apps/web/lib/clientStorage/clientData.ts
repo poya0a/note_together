@@ -11,33 +11,54 @@ export type ClientData = {
 };
 
 const LOCAL_STORAGE_KEY = "noteTogetherClientData";
-
 const MAX_DOCS = 20;
 
 function isBrowser(): boolean {
     return typeof window !== "undefined";
 }
 
+function createUser(): UserInfo {
+    return {
+        name: randomUserName(),
+        color: randomColor(),
+    };
+}
+
 export function getOrCreateClientData(): ClientData {
     if (!isBrowser()) {
         return {
-            user: { name: '', color: '' },
+            user: { name: "", color: "" },
             documents: [],
         };
     }
 
     try {
         const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
-        if (stored) return JSON.parse(stored);
-    } catch (err) {
-        throw err;
+
+        if (stored) {
+            const parsed = JSON.parse(stored);
+
+            const data: ClientData = {
+                user: parsed.user ?? createUser(),
+                documents: Array.isArray(parsed.documents)
+                    ? parsed.documents
+                    : [],
+            };
+
+            localStorage.setItem(
+                LOCAL_STORAGE_KEY,
+                JSON.stringify(data)
+            );
+
+            return data;
+        }
+    } catch {
+        // 에러 발생 시 데이터 지우고 새로 생성
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
     }
 
     const data: ClientData = {
-        user: {
-            name: randomUserName(),
-            color: randomColor(),
-        },
+        user: createUser(),
         documents: [],
     };
 
@@ -45,7 +66,7 @@ export function getOrCreateClientData(): ClientData {
     return data;
 }
 
-export function addDocument(documentId: string) {
+export function addDocumentId(documentId: string) {
     if (!isBrowser()) return;
 
     const data = getOrCreateClientData();
@@ -58,7 +79,7 @@ export function addDocument(documentId: string) {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
 }
 
-export function removeDocument(documentId: string) {
+export function removeDocumentId(documentId: string) {
     if (!isBrowser()) return;
 
     const data = getOrCreateClientData();
@@ -76,4 +97,8 @@ export function getLastOpenedDocument(): string | null {
 
 export function getUserInfo(): UserInfo {
     return getOrCreateClientData().user;
+}
+
+export function getDocuments(): string[] {
+    return getOrCreateClientData().documents;
 }

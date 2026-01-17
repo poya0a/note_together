@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { getOrCreateClientData, addDocument, removeDocument } from "@/lib/clientStorage/clientData";
+import { getDocuments, addDocumentId, removeDocumentId } from "@/lib/clientStorage/clientData";
 import { useDocumentStore } from "@/store/useDocumentStore";
 import { createNewDocument, fetchTitleList } from "@/lib/document";
 import styles from "@/styles/components/_header.module.scss";
@@ -22,11 +22,11 @@ export default function Header() {
 
         const init = async () => {
             setActive(documentId);
-            const clientData = getOrCreateClientData();
+            const documentsData = getDocuments();
             
             // 기존 문서 데이터가 있는 경우
-            if (clientData.documents && clientData.documents.length > 0) {
-                const titles = await fetchTitleList(clientData.documents);
+            if (documentsData && documentsData.length > 0) {
+                const titles = await fetchTitleList(documentsData);
                 if (titles && titles.length > 0) {
                     setList(titles);
                 }
@@ -49,14 +49,14 @@ export default function Header() {
 
     const handlePage = (pageId: string) => {
         if (pageId === documentId) return;
-        router.replace(`/document/${pageId}`);
+        router.push(`/document/${pageId}`);
     }
 
     const handleExitDocument = (pageId: string) => {
-        removeDocument(pageId);
+        removeDocumentId(pageId);
 
-        const clientData = getOrCreateClientData();
-        const targetDocId = clientData.documents[clientData.documents.length - 1];
+        const documentsData = getDocuments();
+        const targetDocId = documentsData[documentsData.length - 2];
         if (targetDocId) {
             router.push(`/document/${targetDocId}`);
         } else {
@@ -71,7 +71,7 @@ export default function Header() {
         if (newDoc) {
             // 전역 변수에 저장
             setDocument(newDoc);
-            addDocument(newDoc.id);
+            addDocumentId(newDoc.id);
             router.push(`/document/${newDoc.id}`);
         }
     };

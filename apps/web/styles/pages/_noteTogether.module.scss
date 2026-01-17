@@ -56,8 +56,37 @@
         }
 }
 
+.pointerLayer {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        z-index: 4;
+}
+
+.pointer {
+        position: absolute;
+        transform: translate(-50%, -50%);
+        transition: transform 0.05s linear;
+}
+
+.pointerDot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+}
+
+.pointerLabel {
+        margin-left: 6px;
+        font-size: 12px;
+        padding: 2px 5px;
+        border-radius: var(--radius);
+        background: rgba(0,0,0,0.5);
+        color: $background-color;
+        white-space: nowrap;
+}
+
 .alertOverlay {
-        z-index: 5;
+        z-index: 999;
         position: fixed;
         top: 0;
         left: 0;
