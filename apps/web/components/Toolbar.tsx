@@ -6,7 +6,7 @@ import Image from "next/image";
 import { SketchPicker, ColorResult } from "react-color";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useToolbarHeightStore } from "@/store/useToolbarHeightStore";
-import { useURLPopupStore } from "@/store/popup/useURLPopupStore";
+import { LinkPopupState } from "@/app/document/[documentId]/page";
 import styles from "@/styles/components/_toolbar.module.scss";
 
 const isTablePresent = (editor: Editor): boolean => {
@@ -25,7 +25,15 @@ const isTablePresent = (editor: Editor): boolean => {
   return found;
 };
 
-export default function Toolbar({ editor }: { editor: Editor | null }) {
+export default function Toolbar({ 
+  editor, 
+  linkPopupState, 
+  openLinkPopup 
+}: { 
+  editor: Editor | null, 
+  linkPopupState: LinkPopupState
+  openLinkPopup: () => void 
+}) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { handleToolbarHeight } = useToolbarHeightStore();
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
@@ -34,7 +42,6 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
   const [type, setType] = useState<string>("");
   const imgRef = useRef<HTMLInputElement>(null);
   const { useEditorState, setHasTableTag, setFontSize, plusFontSize, minusFontSize } = useEditorStore();
-  const { useURLPopupState, toggleURLPopup } = useURLPopupStore();
   const colorPickerRef = useRef<HTMLDivElement>(null);
 
   // 리사이즈
@@ -115,15 +122,26 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
 
   useEffect(() => {
     if (!editor) return;
-    if (!useURLPopupState.isActOpen && useURLPopupState.value.URL !== null) {
+    if (!linkPopupState.open && linkPopupState.value.URL) {
       editor
-      .chain()
-      .focus()
-      .extendMarkRange("link")
-      .setLink({ href: useURLPopupState.value.URL, target: "_blank" })
-      .run();
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'text',
+          text: linkPopupState.value.label ?? linkPopupState.value.URL,
+          marks: [
+            {
+              type: 'link',
+              attrs: {
+                href: linkPopupState.value.URL,
+                target: '_blank',
+              },
+            },
+          ],
+        })
+        .run();
     }
-  }, [useURLPopupState, editor]);
+  }, [linkPopupState, editor]);
 
   const createTable = useCallback(() => {
     if (!editor) return;
@@ -469,7 +487,7 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
           <button type="button" onClick={createTable} title="표 생성">
             <Image src="/images/icon/grid.svg" alt="create grid" width={20} height={20} />
           </button>
-          <button type="button" onClick={() => toggleURLPopup(true)} title="연결 삽입">
+          <button type="button" onClick={openLinkPopup} title="연결 삽입">
             <Image src="/images/icon/link.svg" alt="link" width={20} height={20} />
           </button>
         </div>

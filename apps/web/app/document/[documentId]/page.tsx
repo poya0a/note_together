@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, KeyboardEvent } from "react";
 import { useParams, useRouter } from "next/navigation";
 import * as Y from "yjs";
 import { HocuspocusProvider } from "@hocuspocus/provider";
@@ -56,6 +56,14 @@ function throttle<T extends (...args: any[]) => void>(fn: T, delay: number) {
     };
 }
 
+export interface LinkPopupState {
+    open: boolean;
+    value: {
+        URL: string;
+        label: string;
+    };
+}
+
 type ConfirmAlertState = {
     open: boolean;
     message: string;
@@ -98,6 +106,17 @@ export default function DocumentPage() {
     const titleRef = useRef("");
     const hasChangesRef = useRef(false);
     const [remotePointers, setRemotePointers] = useState<AwarenessState[]>([]);
+
+    const [linkPopup, setLinkPopup] = useState<LinkPopupState>({
+        open: false,
+        value: {
+            URL: "",
+            label: "",
+        },
+    });
+    const [URLValue, setURLValue] = useState<string>("");
+    const [labelValue, setLabelValue] = useState<string>("");
+    const [notUrl, setNotUrl] = useState<boolean>(false);
 
     const [showAlert, setShowAlert] = useState<string>("");
     const [confirmAlert, setConfirmAlert] = useState<ConfirmAlertState>({
@@ -344,6 +363,63 @@ export default function DocumentPage() {
         router.replace("/");
     };
 
+    const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            handleLinkSave();
+        }
+    };
+
+    const openLinkPopup = () => {
+        setLinkPopup({
+            open: true,
+            value: { 
+                URL: "",
+                label: ""
+            }
+        });
+    }
+
+    const closeLinkPopup = () => {
+        setLinkPopup({
+            open: false,
+            value: { 
+                URL: "",
+                label: ""
+            }
+        });
+
+        setURLValue("");
+        setLabelValue("");
+        setNotUrl(false);
+    }
+    
+    const handleLinkSave = () => {
+        const urlPattern = new RegExp(
+            "^(https?:\\/\\/)?" + // 프로토콜 (선택)
+                "((([a-zA-Z0-9\\-]+\\.)+[a-zA-Z]{2,})|" + // 도메인명
+                "((\\d{1,3}\\.){3}\\d{1,3}))" + // IP 주소 (IPv4)
+                "(\\:\\d+)?(\\/[-a-zA-Z0-9%_.~+]*)*" + // 포트와 경로
+                "(\\?[;&a-zA-Z0-9%_.~+=-]*)?" + // 쿼리 문자열 (선택)
+                "(\\#[-a-zA-Z0-9_]*)?$", // 해시 (선택)
+            "i"
+        );
+        if (!urlPattern.test(URLValue)) {
+            return setNotUrl(true);
+        }
+
+        setLinkPopup({
+            open: false,
+            value: { 
+                URL: URLValue,
+                label: labelValue
+            }
+        });
+
+        setURLValue("");
+        setLabelValue("");
+        setNotUrl(false);
+    };
+
     const openConfirmAlert = (
         message: string,
         onConfirm: () => void
@@ -388,6 +464,8 @@ export default function DocumentPage() {
             <div className={styles.container}>
                 <div className={styles.titleContainer}>
                     <input
+                        id="title"
+                        name="title"
                         type="text"
                         className={styles.editorTitle}
                         placeholder="제목 없음"
@@ -411,7 +489,11 @@ export default function DocumentPage() {
                     </button>
                 </div>
 
-                <Toolbar editor={editor} />
+                <Toolbar 
+                    editor={editor} 
+                    linkPopupState={linkPopup}
+                    openLinkPopup={openLinkPopup} 
+                />
                 <EditorContent editor={editor} />
 
                 <div className={styles.buttonContainer}>
@@ -439,6 +521,48 @@ export default function DocumentPage() {
                     ) : null
                 )}
             </div>
+            {linkPopup.open &&
+                <div className={styles.alertOverlay}>
+                    <div className={styles.alert}>
+                        <div className={styles.alertHeader}>URL</div>
+                        <div className={styles.inputText}>
+                            <label htmlFor="url">URL 주소</label>
+                            <input
+                                id="url"
+                                name="url"
+                                type="text"
+                                maxLength={100}
+                                value={URLValue}
+                                onChange={(e) => {
+                                    setNotUrl(false);
+                                    setURLValue(e.target.value);
+                                    setLabelValue(e.target.value);
+                                }}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        <div className={styles.inputText}>
+                            <label htmlFor="label">URL 연결 문구</label>
+                            <input
+                                id="label"
+                                name="label"
+                                type="text"
+                                maxLength={30}
+                                value={labelValue}
+                                onChange={(e) => {
+                                    setLabelValue(e.target.value);
+                                }}
+                                onKeyDown={handleKeyDown}
+                            />
+                        </div>
+                        {notUrl && <p className={styles.errorMessage}>URL 형식이 올바르지 않습니다. 다시 입력해 주세요.</p>}
+                        <div className={styles.buttonContainer}>
+                            <button className={styles.cancelButton} onClick={closeLinkPopup}>닫기</button>
+                            <button className={styles.approveButton} onClick={handleLinkSave}>확인</button>
+                        </div>
+                    </div>
+                </div>
+            }
             {confirmAlert.open &&
                 <div className={styles.alertOverlay}>
                     <div className={styles.alert}>

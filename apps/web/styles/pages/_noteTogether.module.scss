@@ -21,7 +21,8 @@
         z-index: 3;
         justify-self: center;
         top: 50px;
-        left: 0;
+        left: 50%;
+        transform: translateX(-50%);
         width: 100%;
         max-width: 1000px;
         padding: 10px clamp(0px, 2vw, 15px);
@@ -43,7 +44,8 @@
 .buttonContainer {
         position: absolute;
         bottom: 0;
-        left: 0;
+        left: 50%;
+        transform: translateX(-50%);
         display: flex;
         justify-content: space-between;
         justify-self: center;
@@ -132,4 +134,24 @@
                 padding: 0;
                 margin-top: 30px;
         }
+}
+
+.inputText {
+        min-width: 245px;
+        margin-bottom: 20px;
+        label {
+                display: block;
+                font-size: 14px;
+                margin-bottom: 10px;
+                color: $blue-color;
+        }
+        input {
+                width: 100%;
+        }
+}
+
+.errorMessage {
+        margin-top: 10px;
+        font-size: 12px;
+        color: $red-color;
 }
