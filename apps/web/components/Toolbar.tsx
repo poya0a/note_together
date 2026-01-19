@@ -188,6 +188,7 @@ export default function Toolbar({
       if (file) {
         insertImage(file);
       }
+      event.target.value = '';
     },
     [insertImage]
   );
