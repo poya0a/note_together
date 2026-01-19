@@ -19,7 +19,7 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   useEditorState: {
     hasTableTag: false,
     title: "",
-    fontSize: "14",
+    fontSize: "16",
   },
 
   setHasTableTag: (hasTableTag: boolean) => {

@@ -87,6 +87,8 @@ export function removeDocumentId(documentId: string) {
     data.documents = data.documents.filter(id => id !== documentId);
 
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(data));
+
+    return data.documents;
 }
 
 export function getLastOpenedDocument(): string | null {

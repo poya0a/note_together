@@ -72,7 +72,7 @@ const CustomTextStyle = TextStyle.extend({
         fontSize: {
             default: null,
             parseHTML: el => el.style.fontSize.replace("px", "") || null,
-            renderHTML: attrs => ({ style: `font-size: ${attrs.fontSize || 14}px` }),
+            renderHTML: attrs => ({ style: `font-size: ${attrs.fontSize || 16}px` }),
         },
         };
     },
@@ -135,14 +135,15 @@ export default function DocumentPage() {
                         orderedList: { keepMarks: true, keepAttributes: false }
                     }),
                     Collaboration.configure({ document: doc, fragment: content }),
-                    TextStyle,
                     CustomTextStyle,
                     TextAlign.configure({ types: ["heading", "paragraph"] }),
-                    Color,
+                    Color.configure({
+                        types: ["textStyle"],
+                    }),
                     ListItem,
                     Underline,
                     Highlight.configure({ multicolor: true }),
-                    Image.configure({ inline: true, allowBase64: true }),
+                    Image,
                     ImageResize,
                     Link.configure({ autolink: true, openOnClick: true }),
                     Table.configure({ resizable: true }),

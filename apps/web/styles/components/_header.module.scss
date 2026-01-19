@@ -18,7 +18,7 @@
     display: flex;
     justify-content: space-between;
     background-color: $background-color;
-    padding: 0 clamp(20px, calc(5vw + 10px), 50px);
+    padding: 0 clamp(20px, 5vw, 50px);
 }
 
 .logo {
@@ -70,7 +70,7 @@
     height: auto;
     margin-right: calc( 100vh - 50px );
     overflow-y: auto;
-    padding: 20px clamp(20px, calc(5vw + 10px), 50px);
+    padding: 20px clamp(20px, 5vw, 50px);
     background-color: $background-color;
     transform: translateY(calc(-100% - 50px));
     opacity: 0;

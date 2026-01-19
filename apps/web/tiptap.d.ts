@@ -34,7 +34,7 @@ declare module '@tiptap/core' {
             fixTables: () => ReturnType
         }
         image: {
-            setImage: (options: { src: string; alt?: string; title?: string; width?: number; height?: number }) => ReturnType
+            setImage: (options: { src: string; alt?: string; title?: string; width?: string | number; height?: string | number ; style?: string; }) => ReturnType
         }
         textAlign: {
             setTextAlign: (alignment: 'left' | 'center' | 'right' | 'justify') => ReturnType

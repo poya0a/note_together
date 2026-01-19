@@ -27,8 +27,17 @@ export default function Header() {
             // 기존 문서 데이터가 있는 경우
             if (documentsData && documentsData.length > 0) {
                 const titles = await fetchTitleList(documentsData);
+
                 if (titles && titles.length > 0) {
-                    setList(titles);
+                    const normalizedTitles = titles.map(item => ({
+                    ...item,
+                    title:
+                        item.title && item.title.trim().length > 0
+                        ? item.title
+                        : '제목 없음',
+                    }));
+
+                    setList(normalizedTitles);
                 }
             }
         }
@@ -53,12 +62,10 @@ export default function Header() {
     }
 
     const handleExitDocument = (pageId: string) => {
-        removeDocumentId(pageId);
+        const removed = removeDocumentId(pageId);
 
-        const documentsData = getDocuments();
-        const targetDocId = documentsData[documentsData.length - 2];
-        if (targetDocId) {
-            router.push(`/document/${targetDocId}`);
+        if (removed && removed.length > 0) {
+            router.push(`/document/${removed[removed.length - 1]}`);
         } else {
             router.push("/");
         }

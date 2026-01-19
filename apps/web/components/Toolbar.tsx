@@ -1,11 +1,11 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor } from "@tiptap/react";
+import type { Transaction } from 'prosemirror-state';
 import Image from "next/image";
 import { SketchPicker, ColorResult } from "react-color";
 import { useEditorStore } from "@/store/useEditorStore";
 import { useToolbarHeightStore } from "@/store/useToolbarHeightStore";
-// import { useUpdateEffect } from "@utils/useUpdateEffect";
 import { useURLPopupStore } from "@/store/popup/useURLPopupStore";
 import styles from "@/styles/components/_toolbar.module.scss";
 
@@ -29,7 +29,7 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { handleToolbarHeight } = useToolbarHeightStore();
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
-  const [currentTextColor, setCurrentTextColor] = useState<string>("#1F1F1F");
+  const [currentTextColor, setCurrentTextColor] = useState<string>("#000");
   const [currentHighlightColor, setCurrentHighlightColor] = useState<string>("transparent");
   const [type, setType] = useState<string>("");
   const imgRef = useRef<HTMLInputElement>(null);
@@ -116,11 +116,12 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
   useEffect(() => {
     if (!editor) return;
     if (!useURLPopupState.isActOpen && useURLPopupState.value.URL !== null) {
-      editor.commands.setContent(
-        `<a href="${useURLPopupState.value.URL}" target="_blank">${
-          useURLPopupState.value.label === null ? useURLPopupState.value.URL : useURLPopupState.value.label
-        }</a>`
-      );
+      editor
+      .chain()
+      .focus()
+      .extendMarkRange("link")
+      .setLink({ href: useURLPopupState.value.URL, target: "_blank" })
+      .run();
     }
   }, [useURLPopupState, editor]);
 
@@ -148,7 +149,14 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
       reader.onload = () => {
         const base64Image = reader.result?.toString();
         if (base64Image) {
-          editor?.chain().focus().setImage({ src: base64Image }).run();
+          editor?.chain()
+          .focus()
+          .setImage({
+            src: base64Image,
+            width: "100%",
+            style: "max-width: 100%; height: auto;",
+          })
+          .run();
         }
       };
       reader.readAsDataURL(file);
@@ -168,24 +176,23 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
 
   // 복사 / 붙여넣기로 이미지 저장
   const handlePaste = useCallback(
-    async (event: ClipboardEvent) => {
+    (event: ClipboardEvent) => {
       if (!editor) return;
 
       const items = event.clipboardData?.items;
       if (!items) return;
 
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
+      const imageItems = Array.from(items).filter(item =>
+        item.type.startsWith("image/")
+      );
 
-        if (item.type.includes("image")) {
-          const blob = item.getAsFile();
-          if (!blob) continue;
+      if (imageItems.length === 0) return; // 텍스트 paste 허용
 
-          event.preventDefault();
+      event.preventDefault();
 
-          const imageUrl = URL.createObjectURL(blob);
-          editor.chain().focus().setImage({ src: imageUrl }).run();
-        }
+      for (const item of imageItems) {
+        const file = item.getAsFile();
+        if (file) insertImage(file);
       }
     },
     [editor]
@@ -205,6 +212,51 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
       };
     }
   }, [editor, handlePaste]);
+
+  // 텍스트 컬러, 하이라이트 유지
+  useEffect(() => {
+    if (!editor) return;
+
+    const handler = ({
+      editor, 
+      transaction 
+    }: {
+      editor: Editor;
+      transaction: Transaction;
+    }) => {
+      if (!transaction.docChanged) return;
+
+      const marks = [];
+
+      if (currentTextColor) {
+        marks.push(
+          editor.schema.marks.textStyle.create({
+            color: currentTextColor,
+          })
+        );
+      }
+
+      if (currentHighlightColor) {
+        marks.push(
+          editor.schema.marks.highlight.create({
+            color: currentHighlightColor,
+          })
+        );
+      }
+
+      if (marks.length) {
+        editor.view.dispatch(
+          editor.state.tr.setStoredMarks(marks)
+        );
+      }
+    };
+
+    editor.on('transaction', handler);
+
+    return () => {
+      editor.off('transaction', handler);
+    };
+  }, [editor, currentTextColor, currentHighlightColor]);
 
   return (
     <>
@@ -262,7 +314,7 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
               className={styles.colorbar}
               style={{
                 backgroundColor: currentTextColor,
-                border: currentTextColor === "#ffffff" ? "1px solid #1f1f1f" : "",
+                border: currentTextColor === "#fff" ? "1px solid #1f1f1f" : "",
               }}
             />
           </button>
@@ -280,8 +332,8 @@ export default function Toolbar({ editor }: { editor: Editor | null }) {
               style={{
                 backgroundColor: currentHighlightColor,
                 border:
-                  currentHighlightColor === "transparent" || currentHighlightColor === "#ffffff"
-                    ? "1px solid #1f1f1f"
+                  currentHighlightColor === "transparent" || currentHighlightColor === "#fff"
+                    ? "1px solid #000"
                     : "",
               }}
             />
