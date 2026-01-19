@@ -1,13 +1,6 @@
 // tiptap.d.ts
-import '@tiptap/core'
-
-interface TextStyleAttributes {
-    color?: string
-    backgroundColor?: string
-    fontSize?: string
-    fontFamily?: string
-    [key: string]: string | undefined
-}
+import "@tiptap/core";
+import { StoredStyle } from "@/extensions/StoredStyleExtension";
 
 declare module '@tiptap/core' {
     interface Commands<ReturnType> {
@@ -56,8 +49,9 @@ declare module '@tiptap/core' {
             undo: () => ReturnType
             redo: () => ReturnType
         }
-        textStyle: {
-            setMark: (name: string, attributes: TextStyleAttributes) => ReturnType<typeof editor.chain>
+        storedStyle: {
+            setStoredStyle: (style: StoredStyle) => ReturnType
+            clearStoredStyle: () => ReturnType
         }
     }
 }

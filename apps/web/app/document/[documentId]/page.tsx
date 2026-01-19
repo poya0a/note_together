@@ -26,6 +26,7 @@ import Highlight from "@tiptap/extension-highlight";
 import Image from "@tiptap/extension-image";
 import ImageResize from "tiptap-extension-resize-image";
 import { common, createLowlight } from "lowlight";
+import { StoredStyleExtension } from "@/extensions/StoredStyleExtension";
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -77,12 +78,30 @@ const lowlight = createLowlight(common);
 const CustomTextStyle = TextStyle.extend({
     addAttributes() {
         return {
-        fontSize: {
-            default: null,
-            parseHTML: el => el.style.fontSize.replace("px", "") || null,
-            renderHTML: attrs => ({ style: `font-size: ${attrs.fontSize || 16}px` }),
-        },
-        };
+            color: {
+                default: null,
+                renderHTML: attrs =>
+                attrs.color
+                    ? { style: `color: ${attrs.color}` }
+                    : {},
+            },
+
+            fontSize: {
+                default: null,
+                renderHTML: attrs =>
+                attrs.fontSize
+                    ? { style: `font-size: ${attrs.fontSize}px` }
+                    : {},
+            },
+
+            backgroundColor: {
+                default: null,
+                renderHTML: attrs =>
+                attrs.backgroundColor
+                    ? { style: `background-color: ${attrs.backgroundColor}` }
+                    : {},
+            },
+        }
     },
 });
 
@@ -155,13 +174,10 @@ export default function DocumentPage() {
                     }),
                     Collaboration.configure({ document: doc, fragment: content }),
                     CustomTextStyle,
+                    StoredStyleExtension,
                     TextAlign.configure({ types: ["heading", "paragraph"] }),
-                    Color.configure({
-                        types: ["textStyle"],
-                    }),
                     ListItem,
                     Underline,
-                    Highlight.configure({ multicolor: true }),
                     Image,
                     ImageResize,
                     Link.configure({ autolink: true, openOnClick: true }),

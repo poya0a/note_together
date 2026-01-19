@@ -91,21 +91,40 @@ export default function Toolbar({
     if (!editor) return;
     if (useEditorState.fontSize) {
       editor
-        .chain()
-        .setMark("textStyle", {
-          fontSize: useEditorState.fontSize,
-        })
-        .run();
+      .chain()
+      .focus()
+      .setMark('textStyle', {
+        fontSize: useEditorState.fontSize,
+      })
+      .run()
+
+      editor.commands.setStoredStyle({ fontSize: useEditorState.fontSize });
     }
   }, [useEditorState.fontSize, editor]);
 
   const handleColorChange = (color: ColorResult) => {
     if (!editor) return;
     if (type === "text") {
-      editor.chain().focus().setColor(color.hex).run();
+      editor
+      .chain()
+      .focus()
+      .setMark('textStyle', {
+        color: color.hex,
+      })
+      .run()
+
+      editor.commands.setStoredStyle({ color: color.hex });
       setCurrentTextColor(color.hex);
     } else if (type === "highlight") {
-      editor.chain().focus().setHighlight({ color: color.hex }).run();
+      editor
+      .chain()
+      .focus()
+      .setMark('textStyle', {
+        backgroundColor: color.hex,
+      })
+      .run()
+
+      editor.commands.setStoredStyle({ backgroundColor: color.hex });
       setCurrentHighlightColor(color.hex);
     }
   };
@@ -231,51 +250,6 @@ export default function Toolbar({
       };
     }
   }, [editor, handlePaste]);
-
-  // 텍스트 컬러, 하이라이트 유지
-  useEffect(() => {
-    if (!editor) return;
-
-    const handler = ({
-      editor, 
-      transaction 
-    }: {
-      editor: Editor;
-      transaction: Transaction;
-    }) => {
-      if (!transaction.docChanged) return;
-
-      const marks = [];
-
-      if (currentTextColor) {
-        marks.push(
-          editor.schema.marks.textStyle.create({
-            color: currentTextColor,
-          })
-        );
-      }
-
-      if (currentHighlightColor) {
-        marks.push(
-          editor.schema.marks.highlight.create({
-            color: currentHighlightColor,
-          })
-        );
-      }
-
-      if (marks.length) {
-        editor.view.dispatch(
-          editor.state.tr.setStoredMarks(marks)
-        );
-      }
-    };
-
-    editor.on('transaction', handler);
-
-    return () => {
-      editor.off('transaction', handler);
-    };
-  }, [editor, currentTextColor, currentHighlightColor]);
 
   return (
     <>
