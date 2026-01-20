@@ -56,12 +56,13 @@
                 width: fit-content;
                 font-size: 12px;
                 font-weight: 800;
-                color: $background-color;
+                color: $text-sub;
                 padding: 10px 20px;
                 border-radius: var(--radius);
-                background-color: $red-color;
+                background-color: $sub-color;
                 &.saveButton, &.approveButton {
-                        background-color: $blue-color;
+                        color: $background-color;
+                        background-color: $main-color;
                 }
         }
 }
@@ -111,14 +112,14 @@
         left: 50%;
         transform: translate(-50%, -50%);
         box-shadow: var(--shadow-lg);
-        background-color: $sub-color;
+        background-color: $background-color;
         padding: 20px;
         border-radius: var(--radius);
         .alertHeader {
                 margin-bottom: 30px;
                 padding-bottom: 20px;
                 text-align: center;
-                border-bottom: 2px solid $background-color;
+                border-bottom: 2px solid #ebf0ff;
                 font-size: 15px;
                 font-weight: 700;
                 letter-spacing: 10px;
