@@ -55,7 +55,7 @@ function throttle<T extends (...args: any[]) => void>(fn: T, delay: number) {
             fn(...args);
         }
     };
-}
+};
 
 export interface LinkPopupState {
     open: boolean;
@@ -63,7 +63,7 @@ export interface LinkPopupState {
         URL: string;
         label: string;
     };
-}
+};
 
 type ConfirmAlertState = {
     open: boolean;
@@ -123,6 +123,7 @@ export default function DocumentPage() {
 
     const [title, setTitle] = useState("");
     const titleRef = useRef("");
+    const isEditingTitleRef = useRef(false);
     const hasChangesRef = useRef(false);
     const [remotePointers, setRemotePointers] = useState<AwarenessState[]>([]);
 
@@ -173,6 +174,7 @@ export default function DocumentPage() {
                         orderedList: { keepMarks: true, keepAttributes: false }
                     }),
                     Collaboration.configure({ document: doc, fragment: content }),
+                    Color,
                     CustomTextStyle,
                     StoredStyleExtension,
                     TextAlign.configure({ types: ["heading", "paragraph"] }),
@@ -193,6 +195,8 @@ export default function DocumentPage() {
             setEditor(newEditor);
 
             const syncTitle = () => {
+                if (isEditingTitleRef.current) return;
+
                 const value = meta.get("title");
                 if (typeof value !== "string") return;
 
@@ -205,6 +209,8 @@ export default function DocumentPage() {
                 syncTitle();
             });
             
+            meta.observe(syncTitle);
+
             newEditor.on("transaction", ({ transaction }) => {
                 if (transaction.docChanged) {
                     hasChangesRef.current = true;
@@ -324,25 +330,26 @@ export default function DocumentPage() {
         return () => clearInterval(interval);
     }, []);
 
+    // 삭제 감지
     useEffect(() => {
-        if (!yjsRef.current) return;
+        if (!yjsRef.current?.provider) return;
 
         const provider = yjsRef.current.provider;
 
-        const onStateless = (payload: string | Uint8Array) => {
-            try {
-                const message = JSON.parse(
-                    typeof payload === "string"
-                    ? payload
-                    : new TextDecoder().decode(payload)
-                );
+        const onStateless = (data: {payload: string}) => {
+            const raw = data.payload;
+            if (!raw) return;
+            const message = JSON.parse(raw);
+            if (message.type === "DELETED") {
+                provider.disconnect();
 
-                if (message.type === "DELETED") {
-                    closeConfirmAlert();
-                    setShowAlert("문서가 삭제되었습니다.");
+                closeConfirmAlert();
+                setShowAlert("문서가 삭제되었습니다.");
+                removeDocumentId(currentDocId);
+                setTimeout(() => {
                     router.replace("/not-found");
-                }
-            } catch {}
+                }, 1500);
+            }
         };
 
         provider.on("stateless", onStateless);
@@ -350,7 +357,7 @@ export default function DocumentPage() {
         return () => {
             provider.off("stateless", onStateless);
         };
-    }, []);
+    }, [yjsRef.current?.provider]);
 
     const handleSave = async () => {
         if (!yjsRef.current) return;
@@ -375,7 +382,6 @@ export default function DocumentPage() {
 
         removeDocumentId(currentDocId);
 
-        yjsRef.current.provider.sendStateless(JSON.stringify({ type: "DELETED" }));
         router.replace("/");
     };
 
@@ -393,7 +399,7 @@ export default function DocumentPage() {
                 label: ""
             }
         });
-    }
+    };
 
     const closeLinkPopup = () => {
         setLinkPopup({
@@ -407,7 +413,7 @@ export default function DocumentPage() {
         setURLValue("");
         setLabelValue("");
         setNotUrl(false);
-    }
+    };
     
     const handleLinkSave = () => {
         const urlPattern = new RegExp(
@@ -464,7 +470,7 @@ export default function DocumentPage() {
     const handleLinkCopy = async () => {
         await navigator.clipboard.writeText(window.location.href);
         setShowAlert("링크가 복사되었습니다.");
-    }
+    };
 
     const handleEnter = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!editor) return;
@@ -487,16 +493,17 @@ export default function DocumentPage() {
                         placeholder="제목 없음"
                         maxLength={TITLE_MAX}
                         value={title}
+                        onFocus={() => (isEditingTitleRef.current = true)}
+                        onBlur={() => (isEditingTitleRef.current = false)}
                         onChange={e => {
                             const value = e.target.value.slice(0, TITLE_MAX);
                             if (!yjsRef.current) return;
 
                             const meta = yjsRef.current.meta;
-
-                            yjsRef.current.doc.transact(() => {
-                                meta.set("title", value);
-                                setTitle(value);
+                            yjsRef.current?.doc.transact(() => {
+                            meta.set("title", value);
                             });
+                            setTitle(value);
                         }}
                         onKeyUp={handleEnter}
                     />

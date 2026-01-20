@@ -1,10 +1,8 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor } from "@tiptap/react";
-import type { Transaction } from 'prosemirror-state';
 import Image from "next/image";
 import { SketchPicker, ColorResult } from "react-color";
-import { useEditorStore } from "@/store/useEditorStore";
 import { useToolbarHeightStore } from "@/store/useToolbarHeightStore";
 import { LinkPopupState } from "@/app/document/[documentId]/page";
 import styles from "@/styles/components/_toolbar.module.scss";
@@ -36,13 +34,24 @@ export default function Toolbar({
 }) {
   const toolbarRef = useRef<HTMLDivElement>(null);
   const { handleToolbarHeight } = useToolbarHeightStore();
+  const [fontSize, setFontSize] = useState<string>("16");
+  const [draftFontSize, setDraftFontSize] = useState<string>("16");
+  const [isEditingFontSize, setIsEditingFontSize] = useState<boolean>(false);
   const [showColorPicker, setShowColorPicker] = useState<boolean>(false);
+  const [type, setType] = useState<string>("");
   const [currentTextColor, setCurrentTextColor] = useState<string>("#000");
   const [currentHighlightColor, setCurrentHighlightColor] = useState<string>("transparent");
-  const [type, setType] = useState<string>("");
-  const imgRef = useRef<HTMLInputElement>(null);
-  const { useEditorState, setHasTableTag, setFontSize, plusFontSize, minusFontSize } = useEditorStore();
+  const [hasTableTag, setHasTableTag]= useState<boolean>(false);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLInputElement>(null);
+  const pendingColorRef = useRef<string | null>(null)
+
+  // 초기화
+  useEffect(() => {
+    if (!editor) return;
+
+    editor.commands.setStoredStyle({ fontSize: "16" })
+  }, [editor]);
 
   // 리사이즈
   useEffect(() => {
@@ -65,69 +74,27 @@ export default function Toolbar({
   // 컬러 피커
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (editor === null || colorPickerRef.current === null) return;
+      if (!editor || !colorPickerRef.current) return
 
-      const target = event.target as Element | null;
+      const target = event.target as Element | null
+      if (!target) return
 
-      if (target === null) return;
+      const ignore = target.closest("[data-ignore-outside-click]")
 
-      const closestIgnoreElement = target.closest("[data-ignore-outside-click]");
+      if (!ignore && !colorPickerRef.current.contains(target)) {
+        if (pendingColorRef.current) {
+          applyColor(pendingColorRef.current)
+          pendingColorRef.current = null
+        }
 
-      if (!closestIgnoreElement && !colorPickerRef.current.contains(event.target as Node)) {
-        setShowColorPicker(false);
-        setType("");
-        editor.view.dom.style.pointerEvents = "auto";
+        setShowColorPicker(false)
+        setType("")
       }
     }
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [editor]);
-
-  // 폰트 사이즈
-  useEffect(() => {
-    if (!editor) return;
-    if (useEditorState.fontSize) {
-      editor
-      .chain()
-      .focus()
-      .setMark('textStyle', {
-        fontSize: useEditorState.fontSize,
-      })
-      .run()
-
-      editor.commands.setStoredStyle({ fontSize: useEditorState.fontSize });
-    }
-  }, [useEditorState.fontSize, editor]);
-
-  const handleColorChange = (color: ColorResult) => {
-    if (!editor) return;
-    if (type === "text") {
-      editor
-      .chain()
-      .focus()
-      .setMark('textStyle', {
-        color: color.hex,
-      })
-      .run()
-
-      editor.commands.setStoredStyle({ color: color.hex });
-      setCurrentTextColor(color.hex);
-    } else if (type === "highlight") {
-      editor
-      .chain()
-      .focus()
-      .setMark('textStyle', {
-        backgroundColor: color.hex,
-      })
-      .run()
-
-      editor.commands.setStoredStyle({ backgroundColor: color.hex });
-      setCurrentHighlightColor(color.hex);
-    }
-  };
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [editor, type])
 
   const handleButtonClick = (name: string) => {
     if (name === type) {
@@ -138,6 +105,81 @@ export default function Toolbar({
       setType(name);
     }
   };
+
+  const applyColor = (hex: string) => {
+    if (!editor) return
+
+    if (type === "text") {
+      editor.chain().setMark('textStyle', { color: hex }).run()
+      editor.commands.setStoredStyle({ color: hex })
+    } else if (type === "highlight") {
+      editor.chain().setMark('textStyle', { backgroundColor: hex }).run()
+      editor.commands.setStoredStyle({ backgroundColor: hex })
+    }
+  }
+
+  // 색상 동기화
+  useEffect(() => {
+    if (!editor) return;
+
+    const sync = () => {
+      const attrs = editor.getAttributes('textStyle');
+
+      setCurrentTextColor(attrs.color ?? "#000");
+      setCurrentHighlightColor(attrs.backgroundColor ?? "transparent");
+    }
+
+    editor.on("selectionUpdate", sync);
+
+    return () => {
+      editor.off("selectionUpdate", sync);
+    };
+  }, [editor]);
+
+  const applyFontSize = (next: number) => {
+    editor?.chain()
+      .focus()
+      .setMark('textStyle', { fontSize: String(next) })
+      .run();
+
+    editor?.commands.setStoredStyle({ fontSize: String(next) });
+
+    setFontSize(String(next));
+    setDraftFontSize(String(next));
+  };
+
+  const plusFontSize = () => {
+    setIsEditingFontSize(true);
+    applyFontSize(Math.min(+draftFontSize + 1, 999));
+    queueMicrotask(() => setIsEditingFontSize(false));
+  };
+
+  const minusFontSize = () => {
+    setIsEditingFontSize(true);
+    applyFontSize(Math.max(+draftFontSize - 1, 1));
+    queueMicrotask(() => setIsEditingFontSize(false));
+  };
+
+  // 폰트 사이즈 동기화
+  useEffect(() => {
+    if (!editor) return;
+
+    const sync = () => {
+      if (isEditingFontSize) return;
+
+      const attrs = editor.getAttributes('textStyle');
+      const size = attrs.fontSize ? String(attrs.fontSize) : "16";
+
+      setFontSize(size);
+      setDraftFontSize(size);
+    };
+
+    editor.on("selectionUpdate", sync);
+
+    return () => {
+      editor.off("selectionUpdate", sync);
+    };
+  }, [editor, isEditingFontSize]);
 
   useEffect(() => {
     if (!editor) return;
@@ -159,7 +201,7 @@ export default function Toolbar({
           ],
         })
         .run();
-    }
+    };
   }, [linkPopupState, editor]);
 
   const createTable = useCallback(() => {
@@ -335,7 +377,17 @@ export default function Toolbar({
             <div className={styles.colorPicker} ref={colorPickerRef}>
               <SketchPicker
                 color={type === "text" ? currentTextColor : currentHighlightColor}
-                onChange={handleColorChange}
+                onChange={(color) => {
+                  pendingColorRef.current = color.hex;
+                  if (type === "text") {
+                    setCurrentTextColor(color.hex);
+                  } else {
+                    setCurrentHighlightColor(color.hex);
+                  };
+                }}
+                onChangeComplete={(color) => {
+                  applyColor(color.hex)
+                }}
               />
             </div>
           )}
@@ -345,8 +397,38 @@ export default function Toolbar({
               name="font_size"
               id="fontSize"
               className="input"
-              value={useEditorState.fontSize}
-              onChange={(e) => setFontSize(e.target.value)}
+              value={draftFontSize}
+              onFocus={() => setIsEditingFontSize(true)}
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (!/^\d*$/.test(value)) return;
+
+                setDraftFontSize(value);
+              }}
+              onBlur={() => {
+                setIsEditingFontSize(false);
+
+                const value = parseInt(draftFontSize, 10);
+                if (!value || value < 1 || value > 999) {
+                  setDraftFontSize(fontSize);
+                  return;
+                }
+
+                editor?.chain()
+                  .focus()
+                  .setMark('textStyle', { fontSize: String(value) })
+                  .run();
+
+                editor?.commands.setStoredStyle({ fontSize: String(value) });
+
+                setFontSize(String(value));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.currentTarget.blur();
+                }
+              }}
             />
             <button type="button" className={`button ${styles.fontSizeButton}`} onClick={plusFontSize}>
               <Image src="/images/icon/up.svg" alt="" width={20} height={20} />
@@ -485,7 +567,7 @@ export default function Toolbar({
           </button>
         </div>
         <br />
-        {useEditorState.hasTableTag && (
+        {hasTableTag && (
           <div>
             <div className={styles.toolbarWrapper}>
               <button type="button" onClick={() => editor?.chain().focus().addRowBefore().run()} title="위에 행 추가">

@@ -61,7 +61,9 @@ export const DatabaseExtension: Extension = {
         document.broadcastStateless(
           JSON.stringify({ type: "DELETED" })
         );
-        document.destroy();
+        setTimeout(() => {
+          document.destroy();
+        }, 50);
       }
     }
   },
