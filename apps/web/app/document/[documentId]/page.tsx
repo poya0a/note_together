@@ -71,7 +71,7 @@ type ConfirmAlertState = {
     onConfirm?: () => void;
 };
 
-const TITLE_MAX = 20;
+const TITLE_MAX = 50;
 
 const lowlight = createLowlight(common);
 

@@ -28,8 +28,9 @@
         padding: 10px clamp(0px, 2vw, 15px);
         background-color: $background-color;
         .editorTitle {
+                font-size: 16px;
                 max-width: 900px;
-                width: calc(100% - 70px);
+                width: calc(100% - 120px);
                 background-color: #ebf0ff;
                 border: none !important;
 
@@ -37,6 +38,7 @@
         .linkCopyButton {
                 background-color: transparent;
                 font-weight: 900;
+                padding: 0 30px;
                 color: $text;
         }
 }
@@ -107,6 +109,7 @@
 }
 
 .alert {
+        min-width: 230px;
         position: fixed;
         top: 50%;
         left: 50%;
