@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import ToolbarHeightBridge from "@/components/ToolbarHeightBridge";
+import ClientWrapper from "@/components/ClientWrapper";
 import "@/styles/globals.scss";
 
 export const metadata: Metadata = {
@@ -38,8 +38,9 @@ export default function RootLayout({
   return (
     <html lang="ko" id="html">
       <body id="body">
-          <ToolbarHeightBridge />
-          {children}
+          <ClientWrapper >
+            {children}
+          </ClientWrapper>
       </body>
     </html>
   );
