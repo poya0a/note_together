@@ -165,7 +165,7 @@ $text-sub2: #999999;
 
 #body {
     position: relative;
-    height: var(--height);
+    height: 100dvh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
@@ -178,7 +178,7 @@ $text-sub2: #999999;
     width: 100%;
     outline: none;
     padding: 15px clamp(0px, 2vw, 15px);
-    height: calc(var(--height) - 220px - var(--toolbar-height, 73px) - env(safe-area-inset-top));
+    height: calc(100dvh - 220px - var(--toolbar-height, 73px) - env(safe-area-inset-top));
     overflow: auto;
     P {
         color: $text;

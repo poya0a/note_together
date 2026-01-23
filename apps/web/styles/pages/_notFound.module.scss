@@ -1,7 +1,7 @@
 @use '@/styles/globals.scss' as *;
 
 .notFound {
-    height: var(--height);
+    height: 100dvh;
     position: relative;
     padding: 50px clamp(20px, 5vw, 50px);
     display: flex;

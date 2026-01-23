@@ -12,17 +12,5 @@ export default function ClientWrapper({ children }: { children: ReactNode }) {
         );
     }, [useToolbarHeightState]);
 
-    useEffect(() => {
-        const setHeight = () => {
-            const scrollPos = window.scrollY;
-            document.documentElement.style.setProperty('--height', `${window.innerHeight}px`);
-            window.scrollTo({ top: scrollPos });
-        };
-
-        setHeight();
-        window.addEventListener('resize', setHeight);
-        return () => window.removeEventListener('resize', setHeight);
-    }, []);
-
     return <>{children}</>;
 }
