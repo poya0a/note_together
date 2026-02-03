@@ -144,6 +144,15 @@ export default function DocumentPage() {
         message: "",
     });
 
+    useEffect(() => {
+        const isOpen = showAlert !== "" || confirmAlert.open;
+        document.body.style.overflow = isOpen ? "hidden" : "auto";
+
+        return () => {
+            document.body.style.overflow = "auto";
+        };
+    }, [showAlert, confirmAlert.open]);
+    
     // 문서 아이디 확인 / Yjs + Editor 초기화
     useEffect(() => {
         if (!documentId) return router.replace("/");
