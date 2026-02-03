@@ -35,8 +35,8 @@ https://note-together-kappa.vercel.app
 
 **Frontend**: Next.js, React, TypeScript  
 **Backend**: Supabase,  
-**Editor & Realtime**: TipTap, Y.js (CRDT), Hocuspocus
-**Styling**: SCSS
+**Editor & Realtime**: TipTap, Y.js (CRDT), Hocuspocus  
+**Styling**: SCSS   
 **Deployment**: Vercel
 
 ---
