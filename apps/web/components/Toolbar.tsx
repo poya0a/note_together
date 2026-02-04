@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Editor } from "@tiptap/react";
 import Image from "next/image";
-import { SketchPicker, ColorResult } from "react-color";
+import { SketchPicker } from "react-color";
 import { useToolbarHeightStore } from "@/store/useToolbarHeightStore";
 import { LinkPopupState } from "@/app/document/[documentId]/page";
 import styles from "@/styles/components/_toolbar.module.scss";
